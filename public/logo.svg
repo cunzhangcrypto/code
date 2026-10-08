@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img">
+  <title>兑换码</title>
+  <!-- 橙色底：券票轮廓说「兑换」，内嵌条形码说「码」。与具体项目无关，换项目只改站点文字即可。 -->
+  <rect width="64" height="64" rx="16" fill="#F26A1B"/>
+  <path d="M18 20 H46 A4 4 0 0 1 50 24 V28 A4 4 0 0 0 50 36 V40 A4 4 0 0 1 46 44 H18 A4 4 0 0 1 14 40 V36 A4 4 0 0 0 14 28 V24 A4 4 0 0 1 18 20 Z" fill="#FFFFFF"/>
+  <g fill="#F26A1B">
+    <rect x="23" y="25" width="2.5" height="14" rx="1.2"/>
+    <rect x="27.5" y="25" width="4" height="14" rx="1.2"/>
+    <rect x="33.5" y="25" width="2.5" height="14" rx="1.2"/>
+    <rect x="38" y="25" width="3" height="14" rx="1.2"/>
+  </g>
+</svg>
