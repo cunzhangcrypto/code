@@ -94,8 +94,20 @@ jobs:
         run: npx wrangler d1 execute "${{ steps.d1.outputs.id }}" --remote --file=./schema.sql
 
       - name: 🏗️ 确保 Pages 项目存在
-        continue-on-error: true
-        run: npx wrangler pages project create "$PAGES_PROJECT" --production-branch main
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$PAGES_PROJECT")
+
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Pages 项目 $PAGES_PROJECT 已存在，跳过创建"
+          elif [ "$STATUS" = "404" ]; then
+            echo "⚠️ Pages 项目不存在，正在创建…"
+            npx wrangler pages project create "$PAGES_PROJECT" --production-branch main
+          else
+            echo "❌ 查询 Pages 项目失败，HTTP $STATUS"
+            exit 1
+          fi
 
       - name: 🚀 部署到 Cloudflare Pages
         run: |
