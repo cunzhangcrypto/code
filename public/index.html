@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#FBF7F2" />
+<title>Muse兑换码 · 免费拿 310 亿 Token</title>
+<meta name="description" content="社区分享 Muse 兑换码，复制即可使用。24 小时动态兑换码池，免费拿 310 亿 Token。" />
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Muse兑换码</span>
+    </a>
+    <nav class="nav">
+      <a href="#codes">兑换码</a>
+      <a href="#query">查询</a>
+      <a href="#share">分享</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <span class="eyebrow">Muse兑换码</span>
+      <h1 class="hero-title">免费拿 <em>310 亿</em> Token</h1>
+      <p class="hero-sub">社区用户分享的 Muse 兑换码，复制即可使用。</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="#codes">获取兑换码</a>
+        <a class="btn btn--ghost" href="#share">分享我的兑换码</a>
+      </div>
+      <p class="hero-note">无需注册，无需登录。兑换码仅在池中公开展示 24 小时。</p>
+    </div>
+  </section>
+
+  <!-- 兑换码列表 -->
+  <section id="codes" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>当前兑换码</h2>
+        <span class="pill" id="code-count">加载中</span>
+      </div>
+      <p class="section-sub">兑换码每小时随机重排，所有码公平曝光。</p>
+      <div class="code-list" id="code-list" aria-live="polite" aria-busy="true">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 查询 -->
+  <section id="query" class="section">
+    <div class="container">
+      <div class="panel">
+        <h2 class="panel-title">查询我的兑换码</h2>
+        <p class="panel-sub">输入你提交的兑换码，查看当前状态和复制次数。</p>
+        <form class="field-row" id="query-form" autocomplete="off">
+          <input
+            class="input"
+            id="query-input"
+            type="text"
+            inputmode="text"
+            spellcheck="false"
+            placeholder="请输入你的 Muse 兑换码"
+            aria-label="请输入你的 Muse 兑换码"
+          />
+          <button class="btn btn--primary" type="submit">查询</button>
+        </form>
+        <div class="result" id="query-result" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分享 -->
+  <section id="share" class="section">
+    <div class="container">
+      <div class="panel">
+        <h2 class="panel-title">分享我的兑换码</h2>
+        <p class="panel-sub">把你的 Muse 兑换码分享给其他用户。</p>
+        <form class="field-row" id="share-form" autocomplete="off">
+          <input
+            class="input"
+            id="share-input"
+            type="text"
+            inputmode="text"
+            spellcheck="false"
+            placeholder="输入兑换码"
+            aria-label="输入要分享的兑换码"
+          />
+          <button class="btn btn--primary" type="submit">提交兑换码</button>
+        </form>
+        <div class="result" id="share-result" hidden></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-brand">Muse兑换码</p>
+    <p>免费获取社区分享的 Muse 兑换码。</p>
+    <p>本站为独立社区项目，与 Muse 官方没有任何隶属、代理或合作关系。</p>
+    <p>兑换码实际有效性以 Muse 官方页面结果为准。</p>
+    <p class="footer-copy">© 2026 Muse兑换码</p>
+  </div>
+</footer>
+
+<!-- 错误提示：居中弹窗 + 遮罩 -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-mask" data-close></div>
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="modal-text">
+    <p class="modal-text" id="modal-text"></p>
+    <button class="btn btn--primary modal-ok" type="button" data-close>知道了</button>
+  </div>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>

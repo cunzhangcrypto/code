@@ -1,0 +1,13 @@
+name = "muse-codes"
+compatibility_date = "2026-10-01"
+pages_build_output_dir = "public"
+
+# 静态前端放在 public/，API 由 functions/ 下的 Pages Functions（Workers 运行时）处理。
+#
+# database_id 在 CI 里由 .github/workflows/deploy.yml 自动注入（读 GitHub Secrets / 自动创建 D1），
+# 所以这里保留占位符即可，不需要手填、也不需要去 Cloudflare 控制台手动绑定。
+# 本地开发用 `npm run db:init:local`，本地 D1 不依赖这个远端 ID。
+[[d1_databases]]
+binding = "DB"
+database_name = "muse-codes-db"
+database_id = "00000000-0000-0000-0000-000000000000"

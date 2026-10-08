@@ -1,0 +1,13 @@
+{
+  "name": "muse-codes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Muse兑换码 - 极简的 Muse 兑换码分享站",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "db:init:local": "wrangler d1 execute muse-codes-db --local --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.88.0"
+  }
+}
