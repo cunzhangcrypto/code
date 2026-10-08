@@ -6,8 +6,12 @@
   var API = '/api/codes';
 
   var el = {
-    list: document.getElementById('code-list'),
+    grid: document.getElementById('code-grid'),
     count: document.getElementById('code-count'),
+    pager: document.getElementById('code-pager'),
+    pagerInfo: document.getElementById('pager-info'),
+    pagerPrev: document.getElementById('pager-prev'),
+    pagerNext: document.getElementById('pager-next'),
     queryForm: document.getElementById('query-form'),
     queryInput: document.getElementById('query-input'),
     queryResult: document.getElementById('query-result'),
@@ -119,10 +123,14 @@
     return deviceHashPromise;
   }
 
-  /* ---------- 兑换码列表 ---------- */
+  /* ---------- 兑换码网格 ---------- */
+
+  var PAGE_SIZE = 60;
+  var page = 1;
+  var totalPages = 1;
 
   function renderEmpty() {
-    el.list.innerHTML = '';
+    el.grid.innerHTML = '';
     var box = document.createElement('div');
     box.className = 'empty';
     var p = document.createElement('p');
@@ -133,15 +141,15 @@
     a.textContent = '分享我的兑换码';
     box.appendChild(p);
     box.appendChild(a);
-    el.list.appendChild(box);
+    el.grid.appendChild(box);
   }
 
   function buildCard(item) {
-    var card = document.createElement('article');
+    // 整张卡就是复制按钮
+    var card = document.createElement('button');
+    card.type = 'button';
     card.className = 'code-card';
-
-    var main = document.createElement('div');
-    main.className = 'code-card__main';
+    card.title = '点击复制';
 
     var code = document.createElement('span');
     code.className = 'code-card__code';
@@ -151,101 +159,125 @@
     meta.className = 'code-card__meta';
     meta.textContent = '该码被复制了 ' + item.copy_count + ' 次';
 
-    main.appendChild(code);
-    main.appendChild(meta);
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn--ghost btn--sm';
-    btn.textContent = '复制兑换码';
-    btn.addEventListener('click', function () {
-      onCopy(item, btn, meta);
+    card.appendChild(code);
+    card.appendChild(meta);
+    card.addEventListener('click', function () {
+      onCopy(item, card, meta);
     });
 
-    card.appendChild(main);
-    card.appendChild(btn);
     return card;
   }
 
-  function renderCodes(codes) {
-    el.list.innerHTML = '';
-    el.list.setAttribute('aria-busy', 'false');
+  function renderPager() {
+    if (totalPages <= 1) {
+      el.pager.hidden = true;
+      return;
+    }
+    el.pager.hidden = false;
+    el.pagerInfo.textContent = '第 ' + page + ' / ' + totalPages + ' 页';
+    el.pagerPrev.disabled = page <= 1;
+    el.pagerNext.disabled = page >= totalPages;
+  }
 
-    if (!codes || !codes.length) {
-      el.count.textContent = '0 个';
+  function renderCodes(data) {
+    el.grid.innerHTML = '';
+    el.grid.setAttribute('aria-busy', 'false');
+
+    page = data.page || 1;
+    totalPages = data.total_pages || 1;
+    el.count.textContent = (data.total || 0) + ' 个';
+
+    var codes = data.codes || [];
+    if (!codes.length) {
       renderEmpty();
+      renderPager();
       return;
     }
 
-    el.count.textContent = codes.length + ' 个';
     var frag = document.createDocumentFragment();
     codes.forEach(function (item) {
       frag.appendChild(buildCard(item));
     });
-    el.list.appendChild(frag);
+    el.grid.appendChild(frag);
+    renderPager();
   }
 
-  function loadCodes() {
-    return fetch(API, { headers: { accept: 'application/json' } })
+  function loadCodes(target) {
+    if (typeof target === 'number' && target > 0) page = target;
+
+    return fetch(API + '?page=' + page + '&page_size=' + PAGE_SIZE, {
+      headers: { accept: 'application/json' }
+    })
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
       })
-      .then(function (data) {
-        renderCodes(data.codes || []);
-      })
+      .then(renderCodes)
       .catch(function () {
-        el.list.innerHTML = '';
-        el.list.setAttribute('aria-busy', 'false');
+        el.grid.innerHTML = '';
+        el.grid.setAttribute('aria-busy', 'false');
+        el.pager.hidden = true;
         el.count.textContent = '—';
         var box = document.createElement('div');
         box.className = 'empty';
         var p = document.createElement('p');
         p.textContent = '兑换码加载失败，请刷新页面重试。';
         box.appendChild(p);
-        el.list.appendChild(box);
+        el.grid.appendChild(box);
       });
   }
 
+  el.pagerPrev.addEventListener('click', function () {
+    if (page > 1) loadCodes(page - 1);
+  });
+
+  el.pagerNext.addEventListener('click', function () {
+    if (page < totalPages) loadCodes(page + 1);
+  });
+
   /* ---------- 复制 ---------- */
 
-  function onCopy(item, btn, meta) {
-    if (btn.dataset.busy === '1') return;
-    btn.dataset.busy = '1';
+  function onCopy(item, card, meta) {
+    if (card.dataset.busy === '1') return;
+    card.dataset.busy = '1';
 
     copyText(item.code).then(
       function () {
-        btn.classList.add('btn--done');
-        btn.textContent = '✓ 已复制';
+        card.classList.add('is-copied');
+        meta.textContent = '✓ 已复制';
         setTimeout(function () {
-          btn.classList.remove('btn--done');
-          btn.textContent = '复制兑换码';
+          card.classList.remove('is-copied');
+          meta.textContent = '该码被复制了 ' + item.copy_count + ' 次';
         }, 1600);
 
-        getDeviceHash().then(function (deviceHash) {
-          return fetch(API + '/' + item.id + '/copy', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ device_hash: deviceHash })
-          });
-        })
+        getDeviceHash()
+          .then(function (deviceHash) {
+            return fetch(API + '/' + item.id + '/copy', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ device_hash: deviceHash })
+            });
+          })
           .then(function (res) {
             return res.ok ? res.json() : null;
           })
           .then(function (data) {
             if (!data) return;
             item.copy_count = data.copy_count;
-            meta.textContent = '该码被复制了 ' + data.copy_count + ' 次';
+            /* 还在显示「已复制」时先别覆盖，交给上面的定时器复原 */
+            if (!card.classList.contains('is-copied')) {
+              meta.textContent = '该码被复制了 ' + data.copy_count + ' 次';
+            }
           })
           .catch(function () {
             /* 复制统计失败不影响用户使用兑换码 */
           })
           .then(function () {
-            btn.dataset.busy = '0';
+            card.dataset.busy = '0';
           });
       },
       function () {
-        btn.dataset.busy = '0';
+        card.dataset.busy = '0';
         showModal('复制失败，请手动选中兑换码后复制。');
       }
     );
@@ -383,6 +415,6 @@
 
   /* ---------- 启动 ---------- */
 
-  loadCodes();
+  loadCodes(1);
   scheduleHourlyRefresh();
 })();

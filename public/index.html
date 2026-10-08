@@ -48,12 +48,26 @@
         <h2>当前兑换码</h2>
         <span class="pill" id="code-count">加载中</span>
       </div>
-      <p class="section-sub">兑换码每小时随机重排，所有码公平曝光。</p>
-      <div class="code-list" id="code-list" aria-live="polite" aria-busy="true">
+      <p class="section-sub">兑换码每小时随机重排，所有码公平曝光。点一下兑换码即可复制。</p>
+      <div class="code-grid" id="code-grid" aria-live="polite" aria-busy="true">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
         <div class="skeleton"></div>
         <div class="skeleton"></div>
         <div class="skeleton"></div>
       </div>
+      <nav class="pager" id="code-pager" aria-label="分页" hidden>
+        <button class="btn btn--ghost btn--sm" type="button" id="pager-prev">上一页</button>
+        <span class="pager__info" id="pager-info"></span>
+        <button class="btn btn--ghost btn--sm" type="button" id="pager-next">下一页</button>
+      </nav>
     </div>
   </section>
 

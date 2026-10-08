@@ -4,7 +4,15 @@
 
 import { json, normalizeCode, hourSeed, hashString, TTL_MS } from '../../lib/shared.js';
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+
+  const sizeRaw = Number(url.searchParams.get('page_size'));
+  const pageSize = Number.isInteger(sizeRaw) && sizeRaw > 0 ? Math.min(sizeRaw, 200) : 60;
+
+  const pageRaw = Number(url.searchParams.get('page'));
+  let page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+
   const now = Date.now();
 
   // 过期判断完全交给 expires_at，不需要 Cron、不需要改 status
@@ -16,12 +24,20 @@ export async function onRequestGet({ env }) {
 
   // 每小时一个种子：同一小时内排序稳定，进入下一小时自然重排
   const seed = hourSeed();
-  const codes = (results || [])
+  const sorted = (results || [])
     .slice()
-    .sort((a, b) => hashString(a.code + seed) - hashString(b.code + seed))
+    .sort((a, b) => hashString(a.code + seed) - hashString(b.code + seed));
+
+  const total = sorted.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (page > totalPages) page = totalPages;
+
+  const start = (page - 1) * pageSize;
+  const codes = sorted
+    .slice(start, start + pageSize)
     .map((row) => ({ id: row.id, code: row.code, copy_count: row.copy_count }));
 
-  return json({ codes, total: codes.length, seed });
+  return json({ codes, total, page, page_size: pageSize, total_pages: totalPages, seed });
 }
 
 export async function onRequestPost({ request, env }) {
