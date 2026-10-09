@@ -51,7 +51,7 @@ export async function onRequestPost({ request, env }) {
   const code = normalizeCode(body && body.code);
   if (!code) {
     return json(
-      { error: 'invalid_code', message: '请输入正确的兑换码（4-64 个字符，不能含空格）' },
+      { error: 'invalid_code', message: '兑换码必须是 6 位英文或数字。' },
       400
     );
   }

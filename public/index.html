@@ -84,7 +84,9 @@
             type="text"
             inputmode="text"
             spellcheck="false"
-            placeholder="请输入你的 Muse 兑换码"
+            autocapitalize="off"
+            autocorrect="off"
+            placeholder="6 位英文或数字，如 WDE0F2"
             aria-label="请输入你的 Muse 兑换码"
           />
           <button class="btn btn--primary" type="submit">查询</button>
@@ -107,7 +109,9 @@
             type="text"
             inputmode="text"
             spellcheck="false"
-            placeholder="输入兑换码"
+            autocapitalize="off"
+            autocorrect="off"
+            placeholder="6 位英文或数字，如 WDE0F2"
             aria-label="输入要分享的兑换码"
           />
           <button class="btn btn--primary" type="submit">提交兑换码</button>
@@ -134,6 +138,7 @@
   <div class="modal-mask" data-close></div>
   <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="modal-text">
     <p class="modal-text" id="modal-text"></p>
+    <p class="modal-hint" id="modal-hint" hidden></p>
     <button class="btn btn--primary modal-ok" type="button" data-close>知道了</button>
   </div>
 </div>

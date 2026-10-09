@@ -19,13 +19,76 @@
     shareInput: document.getElementById('share-input'),
     shareResult: document.getElementById('share-result'),
     modal: document.getElementById('modal'),
-    modalText: document.getElementById('modal-text')
+    modalText: document.getElementById('modal-text'),
+    modalHint: document.getElementById('modal-hint')
   };
 
   /* ---------- 小工具 ---------- */
 
+  /* 兑换码格式：恰好 6 位英文或数字。与后端 lib/shared.js 的 CODE_RE 必须保持一致。 */
+  var CODE_RE = /^[A-Za-z0-9]{6}$/;
+
+  /* 输入不规范时的重庆话吐槽，随机抽一句（每句配一个专属表情） */
+  var QUIPS = [
+    '给老子的，你娃儿又来捣乱。😤',
+    '你娃儿搞啥子名堂，乱劈柴嗦？🤨',
+    '莫乱整，这个框框不兴乱填。🙅',
+    '啷个回事哦，你当这是许愿池唛？🪙',
+    '你娃儿硬是不听招呼。😮‍💨',
+    '乱填些啥子，我认都认不到。🤷',
+    '要不得，重来。🔄',
+    '你这输入法啷个歪成这个样儿。⌨️',
+    '莫装莽，好生填。🙃',
+    '瓜娃子，英文数字认不到嗦？🔤',
+    '你娃儿又在这点儿扯把子。🤥',
+    '巴适点填，莫扯拐。⚠️',
+    '乱搞些啥子，脑壳痛。🤕',
+    '你怕是刚起床，眼睛都还没睁开。😴',
+    '这门敲字，键盘要遭你敲烂。💥',
+    '喊你填六个，你填一笼包子唛？🥟',
+    '你娃儿耍啥子花活。🎪',
+    '莫在这点儿打胡乱说。🗣️',
+    '正经点，别个还要用。😐',
+    '你这个填法，菩萨都看不懂。🙏',
+    '硬是要得，填得像天书。📜',
+    '你娃儿手抖了唛？🫨',
+    '莫乱来，规矩点。📏',
+    '这是兑换码，不是密码本。🔐',
+    '你填的是啥子，我确实认不到。❓',
+    '又来了又来了，天天都遇到你。🔁',
+    '兄弟，慢点，看清楚了再填。🐢',
+    '你娃儿怕是没睡醒哦。🛌',
+    '莫慌，先把眼睛睁起。👀',
+    '乱填一气，安逸了？😏',
+    '你当这个是抽奖箱嗦，随便抓。🎰',
+    '要填就好生填，莫整些幺蛾子。🦋',
+    '六个字，不多不少，记到。6️⃣',
+    '你娃儿又想搞啥子飞机。✈️',
+    '莫豁我，认真点。😑',
+    '这个填法，我都要笑出声。😂',
+    '幺儿，看清楚了再动手。🧐',
+    '你怕是把我当哈儿整。🤡',
+    '莫在这点儿耍横。😠',
+    '重填，莫得商量。🚫',
+    '你娃儿是来搞笑的唛？🎭',
+    '这门填，神仙也莫法。🧙',
+    '把英文数字认到起，再来。📚',
+    '莫给我整些稀奇古怪的。👽',
+    '你娃儿胆子大，啥子都敢填。🐯',
+    '慢慢来，莫把键盘整冒烟。🔥',
+    '看哈再填，莫急这一下。⏳',
+    '你娃儿毛焦火辣的，急啥子。🌶️',
+    '莫乱扯，正经填一个。🎯',
+    '好了好了，重填一个要得不。🤝'
+  ];
+
   function strip(input) {
-    return (input || '').replace(/\s+/g, '');
+    return (input || '').trim();
+  }
+
+  /* 输入不合规范：随机甩一句重庆话，下面小一号字补上规则 */
+  function rejectCode() {
+    showModal(QUIPS[Math.floor(Math.random() * QUIPS.length)], '莫乱填，要填正确的muse兑换码');
   }
 
   function copyText(text) {
@@ -50,8 +113,12 @@
     });
   }
 
-  function showModal(message) {
+  function showModal(message, hint) {
     el.modalText.textContent = message;
+
+    el.modalHint.hidden = !hint;
+    if (hint) el.modalHint.textContent = hint;
+
     el.modal.hidden = false;
   }
 
@@ -311,6 +378,10 @@
       showModal('请先输入你的 Muse 兑换码。');
       return;
     }
+    if (!CODE_RE.test(code)) {
+      rejectCode();
+      return;
+    }
 
     var btn = el.queryForm.querySelector('button');
     btn.disabled = true;
@@ -359,8 +430,8 @@
       showModal('请先输入要分享的 Muse 兑换码。');
       return;
     }
-    if (code.length < 4 || code.length > 64) {
-      showModal('兑换码长度不正确，请输入 4-64 个字符。');
+    if (!CODE_RE.test(code)) {
+      rejectCode();
       return;
     }
 
