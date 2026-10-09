@@ -83,13 +83,41 @@ WHERE expires_at > 当前时间
 
 ## 五、兑换码的输入处理
 
-- 去掉所有空白字符（首尾 + 中间）
-- 长度必须是 4–64 个字符
+**格式：恰好 6 位英文或数字**（如 `WDE0F2`）。
+
+- 前后可以有空格，会自动去掉（`trim`）
+- 中间不能有空格，不能有中文，不能有符号
+- 超过或不足 6 位都算不合格
 - **不改大小写**
 
 不改大小写是刻意的：用户最终要拿这个码去 Muse 官方兑换，必须和官方要求的字面完全一致，不能自作主张转成大写。
 
 > 推论：`ABC123` 和 `abc123` 会被当成两个不同的码。如果确认 Muse 的码不区分大小写，可以在 `lib/shared.js` 的 `normalizeCode` 里统一转大写。
+
+### 前后端各校验一次
+
+| 位置 | 文件 | 作用 |
+| --- | --- | --- |
+| 前端 | `public/app.js` 的 `CODE_RE` | 提交前拦下，给用户反馈；不发无谓请求 |
+| 后端 | `lib/shared.js` 的 `CODE_RE` | 防止绕过前端直接调接口写入脏数据 |
+
+两处正则必须一致，改的时候一起改。
+
+### 输入不规范时的反馈
+
+前端拦下后弹居中弹窗，三层内容：
+
+```
+给老子的，你娃儿又来捣乱。😤        ← 主文案：随机抽一句重庆话，15px
+莫乱填，要填正确的muse兑换码          ← 副提示：固定文案，13px 灰色
+[ 知道了 ]                          ← 关闭按钮
+```
+
+- 50 句吐槽在 `public/app.js` 的 `QUIPS` 里，**每句配一个专属表情**（50 个表情互不重复）
+- 副提示由 `rejectCode()` 传给 `showModal()` 的第二个参数；不传就自动隐藏，所以其它报错弹窗仍是单行
+- 想加句子直接往 `QUIPS` 数组里塞，表情跟在句子末尾
+
+注意输入框**没有设 `maxlength`**：如果硬卡住输入，超过 6 位这种情况就没法触发吐槽了，所以限制放在提交时。
 
 ---
 
@@ -284,5 +312,7 @@ INSERT OR IGNORE INTO code_copies (code_id, device_hash, created_at)
 | 换排序规则 | `lib/shared.js` 的 `hourSeed` / `hashString` |
 | 兑换码统一转大写 | `lib/shared.js` 的 `normalizeCode` |
 | 查询多展示些信息 | `functions/api/codes/[code].js` + `public/app.js` |
+| 兑换码格式（位数 / 字符集） | `lib/shared.js` 和 `public/app.js` 的 `CODE_RE`（两处要同步） |
+| 重庆话文案 | `public/app.js` 的 `QUIPS` |
 | 每页数量 / 每行列数 | `public/app.js` 的 `PAGE_SIZE` + `public/styles.css` 的 `.code-grid` |
 | 页面样式 / 卡片布局 | `public/styles.css` |
