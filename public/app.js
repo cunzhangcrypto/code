@@ -399,17 +399,11 @@
             { text: '✓ 当前正在展示', strong: true },
             { text: '该码被复制了 ' + data.copy_count + ' 次' }
           ]);
-        } else if (data.expired) {
-          renderResult(el.queryResult, 'warn', [
-            { code: true, text: code },
-            { text: '未找到这个兑换码' },
-            { text: '这个兑换码可能已经超过 24 小时，如果你还有可用兑换码，可以重新提交。' }
-          ]);
         } else {
           renderResult(el.queryResult, 'muted', [
             { code: true, text: code },
             { text: '未找到这个兑换码' },
-            { text: '请检查兑换码是否输入正确。' }
+            { text: '它可能已经超过 24 小时，或者输入有误。如果你还有可用兑换码，可以重新提交。' }
           ]);
         }
       })

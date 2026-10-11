@@ -22,28 +22,33 @@ export async function onRequestPost({ params, request, env }) {
     return json({ error: 'invalid_device', message: '设备标识不合法' }, 400);
   }
 
-  const row = await env.DB.prepare('SELECT id, copy_count FROM codes WHERE id = ?')
-    .bind(id)
-    .first();
-  if (!row) {
-    return json({ error: 'not_found' }, 404);
-  }
-
-  const inserted = await env.DB.prepare(
-    'INSERT OR IGNORE INTO code_copies (code_id, device_hash, created_at) VALUES (?, ?, ?)'
-  )
-    .bind(id, deviceHash, Date.now())
-    .run();
-
-  const counted = !!(inserted.meta && inserted.meta.changes > 0);
-  let copyCount = row.copy_count;
-
-  if (counted) {
-    await env.DB.prepare('UPDATE codes SET copy_count = copy_count + 1 WHERE id = ?')
+  try {
+    const row = await env.DB.prepare('SELECT id, copy_count FROM codes WHERE id = ?')
       .bind(id)
-      .run();
-    copyCount += 1;
-  }
+      .first();
+    if (!row) {
+      return json({ error: 'not_found' }, 404);
+    }
 
-  return json({ ok: true, counted, copy_count: copyCount });
+    const inserted = await env.DB.prepare(
+      'INSERT OR IGNORE INTO code_copies (code_id, device_hash, created_at) VALUES (?, ?, ?)'
+    )
+      .bind(id, deviceHash, Date.now())
+      .run();
+
+    const counted = !!(inserted.meta && inserted.meta.changes > 0);
+    let copyCount = row.copy_count;
+
+    if (counted) {
+      await env.DB.prepare('UPDATE codes SET copy_count = copy_count + 1 WHERE id = ?')
+        .bind(id)
+        .run();
+      copyCount += 1;
+    }
+
+    return json({ ok: true, counted, copy_count: copyCount });
+  } catch {
+    // D1 出错时给出可读的 503，而不是让 Worker 抛异常变成 1101
+    return json({ error: 'server_error', message: '服务暂时不可用，请稍后重试。' }, 503);
+  }
 }

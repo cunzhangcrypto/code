@@ -13,7 +13,6 @@
   --accent-soft: #fff1e4;
   --ok: #2f9e6b;
   --ok-soft: #eaf7f0;
-  --warn-soft: #fff6e8;
   --radius-lg: 20px;
   --radius: 14px;
   --radius-sm: 10px;
@@ -500,11 +499,6 @@ a {
 .result--muted {
   background: #f7f4f0;
   border-color: var(--border);
-}
-
-.result--warn {
-  background: var(--warn-soft);
-  border-color: #f6e0bd;
 }
 
 .result-code {
