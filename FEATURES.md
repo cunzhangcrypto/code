@@ -303,6 +303,10 @@ INSERT OR IGNORE INTO code_copies (code_id, device_hash, created_at)
 | `page` | 1 | 页码；超出范围时自动收敛到最后一页 |
 | `page_size` | 60 | 每页数量，上限 200 |
 
+> 取当页兑换码时，id 数组是用 `json_each` 当**一个**参数传进 SQL 的，不是拼 N 个 `?`。
+> 因为 D1 单条语句最多 100 个绑定参数，拼 `?` 的话 `page_size` 一超过 99 整条语句就会失败（返回 503）。
+> 改这里的时候别退回成 `IN (?,?,?…)`。
+
 返回结构：`{ codes, total, page, page_size, total_pages, seed }`。
 
 ---

@@ -156,11 +156,12 @@ export async function onRequestGet({ request, env, waitUntil }) {
 
     let codes = [];
     if (pageIds.length) {
-      const holders = pageIds.map(() => '?').join(',');
+      // id 数组用 json_each 当「一个参数」传进去，而不是拼 N 个 ?。
+      // D1 单条语句最多 100 个绑定参数，拼 ? 的话 page_size 一超过 99 整条语句就会失败。
       const { results } = await env.DB.prepare(
-        `SELECT id, code, copy_count FROM codes WHERE id IN (${holders}) AND expires_at > ?`
+        'SELECT id, code, copy_count FROM codes WHERE expires_at > ? AND id IN (SELECT value FROM json_each(?))'
       )
-        .bind(...pageIds, Date.now())
+        .bind(Date.now(), JSON.stringify(pageIds))
         .all();
 
       // IN 查询不保证顺序，按预计算好的顺序还原
